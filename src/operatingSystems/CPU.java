@@ -45,6 +45,26 @@ public static void CPU(int X,int Y)
 	//PC = PC+1;
 	if(Instruction_Type_T.equals("0"))
 	{
+		String first_half = Instruction_Register.substring(0,8);
+		if(!first_half.equals("00000000"))
+		{
+			while(first_half.length()<16)
+			{
+				first_half = "0"+first_half;
+			}
+			Unused = first_half.substring(9,11);
+			Op_Code= first_half.substring(11,16);
+			if(Op_Code.equals("10011"))
+			{
+				ZERO_RD();
+			}
+			else if(Op_Code.equals("10100"))
+			{
+				ZERO_WR();
+			}
+			
+		}
+		
 		Unused = Instruction_Register.substring(9,11);
 		Op_Code= Instruction_Register.substring(11,16);
 		switch(Op_Code)
@@ -251,6 +271,20 @@ public static void ZERO_AND()
 }
 public static void ZERO_NOT()
 {
+	PC = PC +1;
+	String stack_value = Stack[TOS];
+	System.out.println("Top of the stack value:"+stack_value);
+	int dec_value = Bin_to_Dec(stack_value);
+	System.out.println("Decimal Value:"+dec_value);
+	int onescompliment = ~dec_value;
+	System.out.println("1's compliment:"+onescompliment);
+	String bin_ones_complement = Dec_to_Bin_16_bit(onescompliment);
+	System.out.println("binary one's complement:"+bin_ones_complement);
+	String bin_onescomplement_16 = bin_ones_complement.substring(16,32);
+	System.out.println("binary one's complement 16 bit:"+bin_onescomplement_16);
+	Stack[TOS] = bin_onescomplement_16;
+	System.out.println("Top of the stack value:"+Stack[TOS]);
+	CPU(PC,Trace_Flag);
 	
 }
 public static void ZERO_XOR()
@@ -341,7 +375,8 @@ public static void ZERO_RD()
 
 public static void ZERO_WR()
 {
-	
+	System.out.println(Stack[TOS]);
+	TOS = TOS-1;
 }
 
 public static void ZERO_RTN()
@@ -559,6 +594,7 @@ public static void ONE_PUSH()
 	TOS = TOS+1;
 	Stack[TOS] = MEMORY.MEMORY("READ",Effective_Address,null);
 	System.out.println("Top of Stack:"+Stack[TOS]);
+	System.out.println("Top of Stack-1:"+Stack[TOS-1]);
 	PC = PC +1;
 	CPU(PC,Trace_Flag);
 	
