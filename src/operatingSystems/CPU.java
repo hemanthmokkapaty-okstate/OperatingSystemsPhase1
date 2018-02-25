@@ -280,9 +280,9 @@ public static void ZERO_NOT()
 	System.out.println("1's compliment:"+onescompliment);
 	String bin_ones_complement = Dec_to_Bin_16_bit(onescompliment);
 	System.out.println("binary one's complement:"+bin_ones_complement);
-	String bin_onescomplement_16 = bin_ones_complement.substring(16,32);
-	System.out.println("binary one's complement 16 bit:"+bin_onescomplement_16);
-	Stack[TOS] = bin_onescomplement_16;
+	//String bin_onescomplement_16 = bin_ones_complement.substring(16,32);
+	//System.out.println("binary one's complement 16 bit:"+bin_onescomplement_16);
+	Stack[TOS] = bin_ones_complement;
 	System.out.println("Top of the stack value:"+Stack[TOS]);
 	CPU(PC,Trace_Flag);
 	
@@ -364,6 +364,7 @@ public static void ZERO_RD()
 	Scanner scanner = new Scanner(System.in); 
 	Input = scanner.nextLine();
 	int Input_Dec = Integer.parseInt(Input);
+
 	String Bin_Input = Dec_to_Bin_16_bit(Input_Dec);
 	System.out.println("Input Binary:"+Bin_Input);
 	TOS = TOS+1;
@@ -475,8 +476,9 @@ public static void ONE_SR()
 }
 public static void ONE_CPG()
 {
-	
-	int dec_stack = Bin_to_Dec(Stack[TOS]);
+	int dec_stack = getTwosComplement(Stack[TOS]);
+	//int dec_stack = Bin_to_Dec(Stack[TOS]);
+	System.out.println("Input Value into decimal:"+dec_stack);
 	int dec_EA = Bin_to_Dec(MEMORY.MEM[Effective_Address]);
 	if(dec_stack > dec_EA)
 	{
@@ -498,7 +500,12 @@ public static void ONE_CPG()
 
 public static void ONE_CPL()
 {
-	int dec_stack = Bin_to_Dec(Stack[TOS]);
+	
+	
+	int dec_stack = getTwosComplement(Stack[TOS]);
+	
+	
+	//int dec_stack = Bin_to_Dec(Stack[TOS]);
 	int dec_EA = Bin_to_Dec(MEMORY.MEM[Effective_Address]);
 	if(dec_stack < dec_EA)
 	{
