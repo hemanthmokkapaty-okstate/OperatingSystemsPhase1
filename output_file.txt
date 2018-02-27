@@ -1,0 +1,7 @@
+Cumulative Job Identification number :1
+Nature of termination : Normal
+
+Clock value at termination: 2 (HEX)virtual time units
+Run time for the job
+Execution time: 251 (DECIMAL)virtual time units
+

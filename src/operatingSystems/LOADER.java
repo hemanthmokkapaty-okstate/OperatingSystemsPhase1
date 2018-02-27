@@ -21,7 +21,7 @@ public class LOADER extends SYSTEM {
 	
 	LOADER()
 	{
-		 FileName = "/Users/hmokkap/Desktop/Encryption_hexa.txt";
+		 FileName = "/Users/hmokkap/Desktop/aplusb.txt";
 		 String each_line = null;
 
 	        try {
@@ -35,6 +35,10 @@ public class LOADER extends SYSTEM {
 
 	            while((each_line = bufferedReader.readLine()) != null) {
 	                //System.out.println(each_line);
+	            	if(each_line.length()>16)
+	            	{
+	            		ERROR_HANDLER.ERROR(102);
+	            	}
 	                lines.add(each_line);       
 	            }   
 	            
@@ -44,22 +48,24 @@ public class LOADER extends SYSTEM {
 	            Base_Address = Hex_to_Dec(First_line_values[1]);
 	            PC = Hex_to_Dec(First_line_values[2]);
 	            Program_length = Hex_to_Dec(First_line_values[3]);
+	            if(PC>Program_length)
+	            {
+	            	ERROR_HANDLER.ERROR(2);
+	            }
 	            Trace_Flag = Hex_to_Dec(First_line_values[4]);     
 	            
 	            // Always close files.
 	            bufferedReader.close();         
 	        }
 	        catch(FileNotFoundException ex) {
-	            System.out.println(
-	                "Unable to open file '" + 
-	                FileName + "'");                
+	        ERROR_HANDLER.ERROR(101);
 	        }
 	        catch(IOException ex) {
-	            System.out.println(
-	                "Error reading file '" 
-	                + FileName + "'");                  
-	            // Or we could just do this: 
-	            // ex.printStackTrace();
+	        	ERROR_HANDLER.ERROR(101);
+	        }
+	        catch(IndexOutOfBoundsException ex)
+	        {
+	        	
 	        }
 	    }
 	
@@ -75,13 +81,23 @@ public class LOADER extends SYSTEM {
 		int each_word=0;
 		while(each_word<one_line.length())
 		{
+			if(one_line.length()%4!=0)
+			{
+				ERROR_HANDLER.ERROR(1);
+			}
 			HD.add(one_line.substring(each_word,Math.min(each_word+4,one_line.length())));
 			each_word = each_word+4;
+			
 		}
 		
 		for(int i=0;i<HD.size();i++)
 		{
 			//System.out.println(HD.get(i));
+			if(!HD.get(i).matches("-?[0-9a-fA-F]+"))
+			{
+				ERROR_HANDLER.ERROR(103);
+			}
+			
 			String first_word = Hex_to_Bin_8_bit(HD.get(i).substring(0, 2));
 			String second_word = Hex_to_Bin_8_bit(HD.get(i).substring(2,4));
 			//System.out.println(first_word+second_word);

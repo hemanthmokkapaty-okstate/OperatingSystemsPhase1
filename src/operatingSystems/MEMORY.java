@@ -1,4 +1,14 @@
 package operatingSystems;
+import java.io.*;
+import java.lang.*;
+import java.math.*;
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.IOException;
+
+
+
 
 public class MEMORY extends SYSTEM 
 {
@@ -11,6 +21,7 @@ public class MEMORY extends SYSTEM
 	{
 		
 	}
+	
 	public static String[] MEM = new String[256];
 	public static String[] Buffer = new String[4];
 	
@@ -23,6 +34,8 @@ public class MEMORY extends SYSTEM
 	
 	public void Buffer_Loading(int bin_index,int mem_index)
 	{
+		try
+		{
 	for(int i=0;i<4;i++)
 	{
 		Buffer[i] = LOADER.BIN.get(BIN_INDEX);
@@ -43,7 +56,12 @@ public class MEMORY extends SYSTEM
 		 Buffer_Loading(BIN_INDEX,MEM_INDEX);
 		 
 	 }
-	
+		}
+		catch(IndexOutOfBoundsException ex)
+        {
+        	
+        }
+
 	}
 	
 	public static String MEMORY(String X,int Y,String Z)
@@ -70,10 +88,10 @@ public class MEMORY extends SYSTEM
 			System.out.println(LOADER.HD.get(i));
 			System.out.println(MEM[i]);
 		}
-	}
-	
-	
-	
+	}	
 	
 }
+
+
+
 

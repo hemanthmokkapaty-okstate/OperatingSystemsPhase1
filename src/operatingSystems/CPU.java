@@ -33,8 +33,9 @@ CPU()
 
 public static void CPU(int X,int Y)
 {
-	//while(Halt_Bit!=true)
-	//{
+	try
+	{
+	
 	Instruction_Register=MEMORY.MEMORY("READ",X,null);
 	System.out.println("\n");
 	System.out.println("Program Counter:"+X);
@@ -45,6 +46,7 @@ public static void CPU(int X,int Y)
 	//PC = PC+1;
 	if(Instruction_Type_T.equals("0"))
 	{
+		System_Clock = System_Clock + 1;
 		String first_half = Instruction_Register.substring(0,8);
 		if(!first_half.equals("00000000"))
 		{
@@ -61,10 +63,18 @@ public static void CPU(int X,int Y)
 			else if(Op_Code.equals("10100"))
 			{
 				ZERO_WR();
+				System.out.println(Stack[TOS]);
+				Output=Stack[TOS];
+				TOS = TOS-1;
+				CPU(PC,Trace_Flag);
 			}
 			
 		}
-		
+		else if(first_half.equals("00000000"))
+		{
+			System_Clock = System_Clock + 1;
+			ZERO_NOP();
+		}
 		Unused = Instruction_Register.substring(9,11);
 		Op_Code= Instruction_Register.substring(11,16);
 		switch(Op_Code)
@@ -150,6 +160,7 @@ public static void CPU(int X,int Y)
 	}
 	else if(Instruction_Type_T.equals("1"))
 	{
+		System_Clock = System_Clock + 4;
 		Unused = Instruction_Register.substring(7,9);
 		Displacement_Address = Instruction_Register.substring(9,16);	
 		Index_bit = Instruction_Register.substring(6,7);
@@ -249,7 +260,12 @@ public static void CPU(int X,int Y)
 		}
 	}
 	
-	
+
+}
+catch(NullPointerException e)
+{
+	ERROR_HANDLER.ERROR(101);
+}
 	}
 //}
 
@@ -259,7 +275,8 @@ public static void CPU(int X,int Y)
 
 public static void ZERO_NOP()
 {
-	
+	//System_Clock = System_Clock +1;
+	//CPU(PC,Trace_Flag);
 }
 public static void ZERO_OR()
 {
@@ -271,6 +288,7 @@ public static void ZERO_AND()
 }
 public static void ZERO_NOT()
 {
+	
 	PC = PC +1;
 	String stack_value = Stack[TOS];
 	System.out.println("Top of the stack value:"+stack_value);
@@ -293,7 +311,15 @@ public static void ZERO_XOR()
 }
 public static void ZERO_ADD()
 {
-	
+	PC = PC +1;
+	int top_stack = Bin_to_Dec(Stack[TOS]);
+	int top_stack1 = Bin_to_Dec(Stack[TOS-1]);
+	int add = (top_stack+top_stack1);
+	String add_bin = Dec_to_Bin_16_bit(add);
+	Stack[TOS-1] = add_bin;
+	Stack[TOS] = null;
+	TOS=TOS-1;
+	CPU(PC,Trace_Flag);
 }
 public static void ZERO_SUB()
 {
@@ -301,6 +327,15 @@ public static void ZERO_SUB()
 }
 public static void ZERO_MUL()
 {
+	PC = PC+1;
+	int top_stack = Bin_to_Dec(Stack[TOS]);
+	int top_stack1 = Bin_to_Dec(Stack[TOS-1]);
+	int mul = (top_stack*top_stack1);
+	String mul_bin = Dec_to_Bin_16_bit(mul);
+	Stack[TOS-1] = mul_bin;
+	Stack[TOS] = null;
+	TOS=TOS-1;
+	CPU(PC,Trace_Flag);
 	
 }
 public static void ZERO_DIV()
@@ -313,6 +348,7 @@ public static void ZERO_MOD()
 }
 public static void ZERO_SL()
 {
+	
 	String stack_top = Stack[TOS];
 	int stack_dec = Bin_to_Dec(stack_top);
 	int shiftleft_decimal = stack_dec<<1;
@@ -360,6 +396,7 @@ public static void ZERO_CALL()
 public static void ZERO_RD()
 {
 	
+	System_Clock = System_Clock +15;
 	System.out.println("Enter the input number:");
 	Scanner scanner = new Scanner(System.in); 
 	Input = scanner.nextLine();
@@ -376,12 +413,24 @@ public static void ZERO_RD()
 
 public static void ZERO_WR()
 {
-	System.out.println(Stack[TOS]);
+	
+	System_Clock = System_Clock +15;
+	PC=PC+1;
+	System.out.println("Output value:"+Stack[TOS]);
 	TOS = TOS-1;
+	CPU(PC,Trace_Flag);
+	/*
+	System.out.println(Stack[TOS]);
+	Output=Stack[TOS];
+	TOS = TOS-1;
+	CPU(PC,Trace_Flag);
+	*/
 }
+
 
 public static void ZERO_RTN()
 {
+	
 	int pc_dec = Bin_to_Dec(Stack[TOS]);
 	PC = pc_dec;
 	System.out.println("PC value:"+PC);
@@ -401,6 +450,9 @@ public static void ZERO_POP()
 public static void ZERO_HLT()
 {
 	
+	System.out.println("Final Clock Value:"+System_Clock);
+	output(Job_Id,System_Clock,IO_Clock,Output);
+	System.exit(0);
 }
 
 
@@ -418,6 +470,7 @@ public static void ONE_OR()
 }
 public static void ONE_AND()
 {
+	
 	int dec_Stack = Bin_to_Dec(Stack[TOS]);
 	System.out.println("Stack of TOS:"+dec_Stack);
 	int dec_EA = Bin_to_Dec(MEMORY.MEM[Effective_Address]);
@@ -441,6 +494,7 @@ public static void ONE_XOR()
 }
 public static void ONE_ADD()
 {
+	
 	int Stack_dec = Bin_to_Dec(Stack[TOS]);
 	int EA_dec = Bin_to_Dec(MEMORY.MEM[Effective_Address]);
 	int Addition = Stack_dec + EA_dec;
@@ -476,6 +530,7 @@ public static void ONE_SR()
 }
 public static void ONE_CPG()
 {
+	
 	int dec_stack = getTwosComplement(Stack[TOS]);
 	//int dec_stack = Bin_to_Dec(Stack[TOS]);
 	System.out.println("Input Value into decimal:"+dec_stack);
@@ -531,12 +586,14 @@ public static void ONE_CPE()
 
 public static void ONE_BR()
 {
+	
 	System.out.println("Stack Of TOS:"+Stack[TOS]);
 	PC = Effective_Address;
 	CPU(PC,Trace_Flag);
 }
 public static void ONE_BRT()
 {
+	
 	if(Stack[TOS].equals("0000000000000001"))
 	{
 		PC = Effective_Address;
@@ -554,6 +611,7 @@ public static void ONE_BRT()
 }
 public static void ONE_BRF()
 {
+	
 	if(Stack[TOS].equals("0000000000000000"))
 	{
 		PC = Effective_Address;
@@ -571,6 +629,7 @@ public static void ONE_BRF()
 }
 public static void ONE_CALL()
 {
+	
 	PC = PC + 1;
 	TOS = TOS +1;
 	String pc_bin = Dec_to_Bin_16_bit(PC);
@@ -584,11 +643,13 @@ public static void ONE_CALL()
 public static void ONE_RD()
 {
 	
+	System_Clock = System_Clock +15;
 }
 
 public static void ONE_WR()
 {
 	
+	System_Clock = System_Clock +15;
 }
 
 public static void ONE_RTN()
@@ -602,24 +663,14 @@ public static void ONE_PUSH()
 	Stack[TOS] = MEMORY.MEMORY("READ",Effective_Address,null);
 	System.out.println("Top of Stack:"+Stack[TOS]);
 	System.out.println("Top of Stack-1:"+Stack[TOS-1]);
+	System.out.println("Top of stack value:"+TOS);
+	//System.out.println("Top of Stack-1:"+Stack[TOS-2]);
 	PC = PC +1;
 	CPU(PC,Trace_Flag);
 	
 }
 public static void ONE_POP()
 {
-	/*
-	int stack_top = Bin_to_Dec(Stack[TOS]);
-	Effective_Address = stack_top;
-	Stack[TOS] = null;
-	TOS = TOS -1;
-	PC = PC + 1;
-	CPU(PC,Trace_Flag);
-	
-	*/
-	
-	
-	
 	MEMORY.MEM[Effective_Address] = Stack[TOS];
 	System.out.println("Memory of Effective Address:"+MEMORY.MEM[Effective_Address]);
 	Stack[TOS] = null;
@@ -635,7 +686,12 @@ public static void ONE_POP()
 public static void ONE_HLT()
 {
 	
+	System.out.println("Final Clock Value:"+System_Clock);
+	System.exit(0);
 }
 
+
 }
+
+
 

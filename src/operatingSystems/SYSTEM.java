@@ -12,6 +12,9 @@ import java.io.*;
 import java.lang.*;
 import java.math.*;
 import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.IOException;
 
 
 
@@ -25,6 +28,11 @@ public class SYSTEM {
 	public static int Effective_Address;
 	public static String Instruction_Register;
 	public static String FileName;
+	public static int System_Clock = 0;
+	public static int IO_Clock =0;
+	public static String Output;
+	public static String outfile = "output.txt";
+
 	
 	
 	public static int Hex_to_Dec(String hex)
@@ -115,8 +123,63 @@ public class SYSTEM {
 	    return result;
 	}
 	
+	public static void output(int jobid, int sysclock,int ioclock,String output) {
+		  
+		  try (BufferedWriter b = new BufferedWriter(new FileWriter(outfile))) {
+		   b.write("Cumulative Job Identification number :"+jobid);
+		   b.newLine();
+		   b.write("Nature of termination : Normal");
+		   b.newLine();
+		   b.write("Output of the Job : " +output + "(BINARY)");
+		   b.newLine();
+		   String sclock;
+		   sclock = Integer.toHexString(sysclock);
+		   b.write("Clock value at termination: " + sclock + " (HEX)virtual time units");
+		   b.newLine();
+		   b.write("Run time for the job");
+		   b.newLine();
+		   b.write("Execution time: " + (sysclock-ioclock) + "(DECIMAL)virtual time units");
+		   b.newLine();
+		   b.write("Input/output time: " + ioclock + "(DECIMAL)virtual time units");
+		   b.newLine();
+		  } catch (IOException e) {
+		   e.printStackTrace();
+		  }
+		 }
 	
+	
+	 public static void outputerror(int jobid,int sysclock, int ioclock,String error) {
+		  try (BufferedWriter b = new BufferedWriter(new FileWriter(outfile))) {
+		   b.write("Cumulative Job Identification number :"+jobid);
+		   b.newLine();
+		   b.write("Nature of termination : Abnormal");
+		   b.newLine();
+		   b.write(error);
+		   b.newLine();
+		   String sclock;
+		   sclock = Integer.toHexString(sysclock);
+		   b.write("Clock value at termination: " + sclock + " (HEX)virtual time units");
+		   b.newLine();
+		   b.write("Run time for the job");
+		   b.newLine();
+		   b.write("Execution time: " + System_Clock + " (DECIMAL)virtual time units");
+		   b.newLine();
+		   b.write("Input/output time: " + ioclock + " (DECIMAL)virtual time units");
+		   b.newLine();
 
+		  } catch (IOException e) {
+		   e.printStackTrace();
+		  }
+		catch (NumberFormatException e) {
+		   e.printStackTrace();
+		  }
+
+		 }
+
+	
+	
+	
+	
 	public static void main(String[] args) {
 		LOADER loader = new LOADER();
 		// TODO Auto-generated method stub
@@ -125,9 +188,6 @@ public class SYSTEM {
 		memory.Buffer_Loading(Base_Address,Base_Address);
 		CPU cpu = new CPU();
 		CPU.CPU(PC,Trace_Flag);
-		
-		//memory.Memory_print();
-
 	}
 
 	
